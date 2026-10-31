@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Бұл кім?</title>
+  <meta name="description" content="Жануарлар қазақша: суреттер мен дауыс. Животные на казахском для малышей.">
+  <meta name="theme-color" content="#FFD6A5">
+  <meta name="color-scheme" content="light dark">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Бұл кім?">
+  <meta property="og:title" content="Бұл кім? — жануарлар қазақша">
+  <meta property="og:description" content="Суретті көр, атын тыңда. Животные на казахском для малышей.">
+  <meta property="og:image" content="icons/og.png">
+  <meta property="og:type" content="website">
+  <link rel="preload" href="assets/fonts/nunito-cyrillic-ext.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/nunito-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="bubbles" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+
+  <main id="stage" class="stage" aria-live="polite"></main>
+
+  <button id="prev" class="nav nav-prev" type="button" aria-label="Алдыңғы">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
+  </button>
+  <button id="next" class="nav nav-next" type="button" aria-label="Келесі">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5 16.5 12 9 19.5"/></svg>
+  </button>
+
+  <div class="toolbar">
+    <button id="btn-auto" class="tool" type="button" aria-label="Автоматты көрсету" aria-pressed="false">
+      <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+      <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13"/></svg>
+    </button>
+    <button id="btn-grid" class="tool" type="button" aria-label="Барлық жануарлар">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8"/></svg>
+    </button>
+    <button id="btn-fs" class="tool" type="button" aria-label="Толық экран" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
+    </button>
+  </div>
+
+  <section id="grid" class="grid" hidden aria-label="Барлық жануарлар">
+    <button id="grid-close" class="tool grid-close" type="button" aria-label="Жабу">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div id="grid-list" class="grid-list"></div>
+    <p class="credits">
+      Суреттер: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Google Noto Emoji</a> (CC BY 4.0, Apache 2.0) ·
+      Қаріп: Nunito (OFL) · Дауыс: Microsoft Aigul, <a href="https://github.com/rany2/edge-tts" target="_blank" rel="noopener">edge-tts</a>
+    </p>
+  </section>
+
+  <div id="start" class="start">
+    <div class="start-friends" aria-hidden="true">
+      <img class="f1" src="assets/img/maimyl.svg" alt="">
+      <img class="f2" src="assets/img/arystan.svg" alt="">
+      <img class="f3" src="assets/img/mysyq.svg" alt="">
+      <img class="f4" src="assets/img/pil.svg" alt="">
+    </div>
+    <h1 class="start-title">Бұл кім?</h1>
+    <button id="start-btn" class="start-btn" type="button" aria-label="Бастау">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+    </button>
+    <p class="start-sub">Жануарлар қазақша</p>
+  </div>
+
+  <script src="vendor/lottie_light.min.js" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>

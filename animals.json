@@ -1,0 +1,62 @@
+{
+  "voice": "kk-KZ-AigulNeural",
+  "rate": "-15%",
+  "phrases": {
+    "intro": "Сәлем, балақай! Жануарларды көрейік!"
+  },
+  "animals": [
+    { "id": "mysyq",      "kk": "Мысық",      "ru": "кошка",      "emoji": "1f63a",      "anim": true },
+    { "id": "it",         "kk": "Ит",         "ru": "собака",     "emoji": "1f415",      "anim": true },
+    { "id": "siyr",       "kk": "Сиыр",       "ru": "корова",     "emoji": "1f42e",      "anim": true },
+    { "id": "zhylqy",     "kk": "Жылқы",      "ru": "лошадь",     "emoji": "1f40e",      "anim": true },
+    { "id": "qoi",        "kk": "Қой",        "ru": "овца",       "emoji": "1f411",      "anim": false },
+    { "id": "eshki",      "kk": "Ешкі",       "ru": "коза",       "emoji": "1f410",      "anim": true },
+    { "id": "tuie",       "kk": "Түйе",       "ru": "верблюд",    "emoji": "1f42b",      "anim": false },
+    { "id": "esek",       "kk": "Есек",       "ru": "осёл",       "emoji": "1facf",      "anim": true },
+    { "id": "tauyq",      "kk": "Тауық",      "ru": "курица",     "emoji": "1f414",      "anim": false },
+    { "id": "atesh",      "kk": "Әтеш",       "ru": "петух",      "emoji": "1f413",      "anim": true },
+    { "id": "balapan",    "kk": "Балапан",    "ru": "цыплёнок",   "emoji": "1f423",      "anim": true },
+    { "id": "uirek",      "kk": "Үйрек",      "ru": "утка",       "emoji": "1f986",      "anim": false },
+    { "id": "qaz",        "kk": "Қаз",        "ru": "гусь",       "emoji": "1fabf",      "anim": true },
+    { "id": "qoian",      "kk": "Қоян",       "ru": "заяц",       "emoji": "1f407",      "anim": true },
+    { "id": "tyshqan",    "kk": "Тышқан",     "ru": "мышь",       "emoji": "1f42d",      "anim": false },
+
+    { "id": "arystan",    "kk": "Арыстан",    "ru": "лев",        "emoji": "1f981",      "anim": true },
+    { "id": "zholbarys",  "kk": "Жолбарыс",   "ru": "тигр",       "emoji": "1f405",      "anim": true },
+    { "id": "pil",        "kk": "Піл",        "ru": "слон",       "emoji": "1f418",      "anim": false },
+    { "id": "maimyl",     "kk": "Маймыл",     "ru": "обезьяна",   "emoji": "1f412",      "anim": true },
+    { "id": "aiu",        "kk": "Аю",         "ru": "медведь",    "emoji": "1f43b",      "anim": true },
+    { "id": "qasqyr",     "kk": "Қасқыр",     "ru": "волк",       "emoji": "1f43a",      "anim": true },
+    { "id": "tulki",      "kk": "Түлкі",      "ru": "лиса",       "emoji": "1f98a",      "anim": true },
+    { "id": "kerik",      "kk": "Керік",      "ru": "жираф",      "emoji": "1f992",      "anim": false },
+    { "id": "zebra",      "kk": "Зебра",      "ru": "зебра",      "emoji": "1f993",      "anim": false },
+    { "id": "panda",      "kk": "Панда",      "ru": "панда",      "emoji": "1f43c",      "anim": true },
+    { "id": "kenguru",    "kk": "Кенгуру",    "ru": "кенгуру",    "emoji": "1f998",      "anim": true },
+    { "id": "kirpi",      "kk": "Кірпі",      "ru": "ёж",         "emoji": "1f994",      "anim": true },
+    { "id": "tiin",       "kk": "Тиін",       "ru": "белка",      "emoji": "1f43f_fe0f", "anim": true },
+    { "id": "tasbaqa",    "kk": "Тасбақа",    "ru": "черепаха",   "emoji": "1f422",      "anim": true },
+    { "id": "baqa",       "kk": "Бақа",       "ru": "лягушка",    "emoji": "1f438",      "anim": true },
+    { "id": "qoltyrauyn", "kk": "Қолтырауын", "ru": "крокодил",   "emoji": "1f40a",      "anim": true },
+    { "id": "zhylan",     "kk": "Жылан",      "ru": "змея",       "emoji": "1f40d",      "anim": true },
+    { "id": "dinozavr",   "kk": "Динозавр",   "ru": "динозавр",   "emoji": "1f996",      "anim": true },
+
+    { "id": "burkit",     "kk": "Бүркіт",     "ru": "беркут",     "emoji": "1f985",      "anim": true },
+    { "id": "uki",        "kk": "Үкі",        "ru": "сова",       "emoji": "1f989",      "anim": true },
+    { "id": "pingvin",    "kk": "Пингвин",    "ru": "пингвин",    "emoji": "1f427",      "anim": true },
+    { "id": "aqqu",       "kk": "Аққу",       "ru": "лебедь",     "emoji": "1f9a2",      "anim": false },
+    { "id": "totyqus",    "kk": "Тотықұс",    "ru": "попугай",    "emoji": "1f99c",      "anim": false },
+    { "id": "tauys",      "kk": "Тауыс",      "ru": "павлин",     "emoji": "1f99a",      "anim": true },
+    { "id": "kogershin",  "kk": "Көгершін",   "ru": "голубь",     "emoji": "1f54a_fe0f", "anim": true },
+
+    { "id": "balyq",      "kk": "Балық",      "ru": "рыба",       "emoji": "1f41f",      "anim": true },
+    { "id": "kit",        "kk": "Кит",        "ru": "кит",        "emoji": "1f433",      "anim": true },
+    { "id": "delfin",     "kk": "Дельфин",    "ru": "дельфин",    "emoji": "1f42c",      "anim": true },
+    { "id": "segizaiaq",  "kk": "Сегізаяқ",   "ru": "осьминог",   "emoji": "1f419",      "anim": true },
+    { "id": "itbalyq",    "kk": "Итбалық",    "ru": "тюлень",     "emoji": "1f9ad",      "anim": true },
+
+    { "id": "kobelek",    "kk": "Көбелек",    "ru": "бабочка",    "emoji": "1f98b",      "anim": true },
+    { "id": "ara",        "kk": "Ара",        "ru": "пчела",      "emoji": "1f41d",      "anim": true },
+    { "id": "qumyrsqa",   "kk": "Құмырсқа",   "ru": "муравей",    "emoji": "1f41c",      "anim": true },
+    { "id": "ulu",        "kk": "Ұлу",        "ru": "улитка",     "emoji": "1f40c",      "anim": true }
+  ]
+}
