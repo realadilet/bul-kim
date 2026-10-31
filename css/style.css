@@ -181,6 +181,7 @@ button > svg path, button > svg rect {
 .pic .lottie { position: absolute; inset: 0; }
 .pic.ready .poster { visibility: hidden; }
 .pic.static .poster { animation: bob 2.6s ease-in-out infinite; transform-origin: 50% 95%; }
+.pic.self .poster { animation: none; }
 .pic-wrap .pic { z-index: 1; }
 /* "tap me" ripple behind the picture until the child taps it */
 .pic-wrap::before {

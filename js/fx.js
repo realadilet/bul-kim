@@ -28,7 +28,7 @@ export function preloadItem(it) {
 
 export function makePicture(it, { animate = true } = {}) {
   const el = document.createElement("div");
-  el.className = "pic";
+  el.className = "pic" + (it.selfanim ? " self" : ""); // self: the picture animates itself (no extra bobbing)
   const img = document.createElement("img");
   img.className = "poster";
   img.src = `assets/img/${it.id}.svg`;
