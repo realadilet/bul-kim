@@ -1,28 +1,37 @@
-// Swipe through the cards of one set. While a card is speaking (name + sound)
-// the child cannot move on: arrows dim, swipes spring back, taps don't restart audio.
+// Swipe through the cards of one set.
+// A card arrives silently with "?" (thinking time). Tap → word + sound, navigation locked meanwhile.
+// Then "your turn": the app waits for the child to say something (mic or the parent's button).
 import * as audio from "./audio.js";
+import * as mic from "./mic.js";
 import { makePicture, preloadItem, jump, wiggle, pulse, shake, popLetters, sparks, reduceMotion } from "./fx.js";
+import { settings, t, nextTip, nameUrl, markSaid } from "./parent.js";
 
 const mod = (n, m) => ((n % m) + m) % m;
+const wait = (ms, signal) => new Promise((res) => {
+  const id = setTimeout(() => res("timeout"), ms);
+  signal?.addEventListener("abort", () => { clearTimeout(id); res("cancel"); });
+});
 
-export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridList, gridClose, colorFor, onChange }) {
+export function createViewer({ stage, prev, next, btnGrid, grid, gridList, gridClose, tip, colorFor, onChange, praises }) {
   let set = null;
   let index = 0;
   let card = null;
   let busy = false;       // slide animation running
-  let speaking = false;   // name/sound playing → navigation locked
-  let autoOn = false;
+  let speaking = false;   // word/sound playing → navigation locked
   let timers = [];
   let drag = null;
   let lastSpark = 0;
   let gridSet = null;
+  let turnAbort = null;
 
   const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
   const setSpeaking = (v) => { speaking = v; document.body.classList.toggle("speaking", v); };
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
 
   function clipsFor(it) {
-    const c = [{ url: `assets/audio/${it.id}.mp3`, text: it.kk }];
-    if (it.sound) c.push({ url: `assets/sounds/${it.id}.mp3` });
+    const c = [{ url: nameUrl(it.id), text: it.kk }];
+    if (it.show) c.push({ url: `assets/audio/s_${it.id}.mp3`, text: it.show }); // «Мұрныңды көрсет!»
+    else if (it.sound) c.push({ url: `assets/sounds/${it.id}.mp3` });
     return c;
   }
 
@@ -39,11 +48,20 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
     word.className = "word ask";
     word.style.setProperty("--len", 3);
     word.innerHTML = "<span>?</span>";
+    const turn = document.createElement("div");
+    turn.className = "turn";
+    turn.innerHTML = `<span class="ear" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 9a4 4 0 1 1 8 0c0 2.5-2 3.3-2.8 4.8-.6 1.2-.4 3-2.2 3.7-1.3.5-2.6-.2-3-1.3"/><path d="M10.5 9.2a1.6 1.6 0 1 1 3 .8"/></svg></span><button type="button" class="said"></button>`;
+    turn.querySelector(".said").textContent = "👍 " + t("said");
     const box = document.createElement("div");
     box.className = "word-box";
-    box.appendChild(word);
+    box.append(word, turn);
     el.append(wrap, box);
-    return { el, wrap, word, pic, item: it, plays: 0, revealed: false };
+    return { el, wrap, word, turn, pic, item: it, revealed: false };
+  }
+
+  function destroyCard(c) {
+    c.pic.destroy();
+    c.el.remove();
   }
 
   // "?" turns into the word when the card speaks for the first time
@@ -54,19 +72,19 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
     c.word.style.setProperty("--len", [...c.item.kk].length);
     c.word.replaceChildren(...[...c.item.kk].map((ch) => {
       const s = document.createElement("span");
-      s.textContent = ch === " " ? "\u00A0" : ch;
+      s.textContent = ch === " " ? " " : ch;
       return s;
     }));
     popLetters(c.word);
   }
 
-  function destroyCard(c) {
-    c.pic.destroy();
-    c.el.remove();
+  function stopTurn() {
+    if (turnAbort) { turnAbort.abort(); turnAbort = null; }
   }
 
   async function announce(c, delay) {
     clearTimers();
+    stopTurn();
     hint(false);
     c.wrap.classList.remove("tap-hint");
     reveal(c);
@@ -79,28 +97,67 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
     if (card !== c) return;
     setSpeaking(false);
     if (!ok) return;
-    c.plays++;
-    if (autoOn) {
-      timers.push(setTimeout(() => {
-        if (card !== c || !autoOn) return;
-        if (c.plays < 2) announce(c, 0.05);
-        else go(1);
-      }, c.plays < 2 ? 1500 : 1200));
+    if (settings.turn !== "off") await yourTurn(c);
+    if (card === c) timers.push(setTimeout(() => hint(true), 6000));
+  }
+
+  // Hanen "Observe–Wait–Listen": lean in, wait quietly, answer ANY sound right away.
+  async function yourTurn(c) {
+    const ac = new AbortController();
+    turnAbort = ac;
+    c.turn.classList.add("on");
+    c.wrap.classList.add("listening");
+    const said = new Promise((res) => {
+      c.turn.querySelector(".said").onclick = (e) => { e.stopPropagation(); res("parent"); };
+    });
+    const listening = settings.turn === "mic" && mic.supported()
+      ? mic.listen(6500, { signal: ac.signal }).then((r) => (r === "error" ? wait(6000, ac.signal) : r))
+      : wait(6000, ac.signal);
+    const r = await Promise.race([listening, said]);
+    ac.abort();
+    if (turnAbort === ac) turnAbort = null;
+    c.turn.classList.remove("on");
+    c.wrap.classList.remove("listening");
+    if (card !== c || r === "cancel") return;
+
+    if (r === "voice" || r === "parent") {
+      if (r === "parent") markSaid(c.item.id, "kk");
+      const b = c.wrap.getBoundingClientRect();
+      sparks(b.left + b.width / 2, b.top + b.height / 2, 18);
+      audio.sfx("win");
+      const p = pick(praises);
+      setSpeaking(true);
+      await audio.play([{ url: `assets/audio/_${p.key}.mp3`, text: p.text }, { url: nameUrl(c.item.id), text: c.item.kk }], {
+        delay: 0.25, gap: 0.25, onClip: (i) => (i === 0 ? wiggle(c.wrap) : (jump(c.wrap), pulse(c.word))),
+      });
+      if (card === c) setSpeaking(false);
     } else {
-      timers.push(setTimeout(() => hint(true), 8000));
+      // no answer: simply model the word once more — never a "wrong"
+      setSpeaking(true);
+      await audio.play([{ url: nameUrl(c.item.id), text: c.item.kk }], { delay: 0.1, onClip: () => { jump(c.wrap); pulse(c.word); } });
+      if (card === c) setSpeaking(false);
     }
   }
 
-  function hint(on) { next.classList.toggle("hint", on && !autoOn); }
+  function hint(on) { next.classList.toggle("hint", on); }
+
+  function showTip() {
+    tip.hidden = !settings.tips;
+    if (!settings.tips) return;
+    tip.textContent = nextTip();
+    tip.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400 });
+  }
 
   function show(i, dir = 0, fromX = 0) {
     i = mod(i, set.items.length);
+    stopTurn();
     const old = card;
     const nc = buildCard(i);
     index = i;
     card = nc;
     stage.appendChild(nc.el);
     onChange(set, i);
+    showTip();
 
     if (old) {
       busy = true;
@@ -124,8 +181,7 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
     // the card arrives silently: the child gets time to think "who is this?"
     clearTimers();
     hint(false);
-    if (autoOn) timers.push(setTimeout(() => { if (card === nc && autoOn) announce(nc, 0.05); }, 3000));
-    else timers.push(setTimeout(() => { if (card === nc && !speaking) nc.wrap.classList.add("tap-hint"); }, 2200));
+    timers.push(setTimeout(() => { if (card === nc && !speaking && !nc.revealed) nc.wrap.classList.add("tap-hint"); }, 2200));
   }
 
   function springBack(dx) {
@@ -149,9 +205,9 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
   function replay(x, y) {
     if (!card) return;
     const now = performance.now();
-    if (now - lastSpark > 140) {
+    if (now - lastSpark > 160) {
       const r = card.wrap.getBoundingClientRect();
-      sparks(x ?? r.left + r.width / 2, y ?? r.top + r.height / 2);
+      sparks(x ?? r.left + r.width / 2, y ?? r.top + r.height / 2, 8);
       lastSpark = now;
     }
     if (speaking) { jump(card.wrap); return; } // no "DJ scratching": the clip keeps playing
@@ -160,7 +216,7 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
 
   // ------------------------------------------------------------ gestures
   stage.addEventListener("pointerdown", (e) => {
-    if (drag || busy || !card) return;
+    if (drag || busy || !card || e.target.closest("button")) return;
     drag = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), dx: 0, moved: false };
     stage.setPointerCapture(e.pointerId);
   });
@@ -174,8 +230,8 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
   });
   const endDrag = (e) => {
     if (!drag || e.pointerId !== drag.id) return;
-    const { dx, moved, t } = drag;
-    const v = Math.abs(dx) / Math.max(1, performance.now() - t);
+    const { dx, moved, t: t0 } = drag;
+    const v = Math.abs(dx) / Math.max(1, performance.now() - t0);
     drag = null;
     if (!card) return;
     card.el.style.transform = "";
@@ -189,22 +245,10 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
   next.addEventListener("click", () => go(1));
   prev.addEventListener("click", () => go(-1));
 
-  // ------------------------------------------------------------ auto mode
-  function setAuto(on) {
-    autoOn = on;
-    btnAuto.setAttribute("aria-pressed", String(on));
-    hint(false);
-    if (!on) { clearTimers(); return; }
-    if (!speaking) announce(card, 0.05);
-  }
-  btnAuto.addEventListener("click", () => {
-    if (speaking && !autoOn) { shake(btnAuto); return; }
-    setAuto(!autoOn);
-  });
-
   // ------------------------------------------------------------ grid of all cards
   function openGrid() {
     if (speaking) { shake(btnGrid); return; }
+    stopTurn();
     if (gridSet !== set) {
       gridList.replaceChildren();
       set.items.forEach((it, i) => {
@@ -229,11 +273,7 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
     const cur = gridList.children[index];
     if (cur) cur.scrollIntoView({ block: "center" });
   }
-  function closeGrid() {
-    if (grid.hidden) return;
-    grid.hidden = true;
-    if (autoOn && card && !speaking) announce(card, 0.1);
-  }
+  function closeGrid() { grid.hidden = true; }
   btnGrid.addEventListener("click", openGrid);
   gridClose.addEventListener("click", closeGrid);
 
@@ -244,19 +284,19 @@ export function createViewer({ stage, prev, next, btnAuto, btnGrid, grid, gridLi
       show(mod(i, s.items.length));
     },
     close() {
+      stopTurn();
       audio.stop();
       clearTimers();
-      autoOn = false;
-      btnAuto.setAttribute("aria-pressed", "false");
       setSpeaking(false);
       hint(false);
       grid.hidden = true;
       busy = false;
       drag = null;
+      tip.hidden = true;
       if (card) { destroyCard(card); card = null; }
       stage.replaceChildren();
     },
-    pause() { audio.stop(); clearTimers(); setSpeaking(false); },
+    pause() { stopTurn(); audio.stop(); clearTimers(); setSpeaking(false); },
     key(e) {
       if (!grid.hidden) { if (e.key === "Escape") closeGrid(); return; }
       if (e.key === "ArrowRight") go(1);

@@ -1,6 +1,9 @@
-// Game: "Мысық қайда?" — three pictures, tap the right one.
+// Game. Two kinds of rounds:
+//  • "Мысық қайда?" — three pictures, tap the named one. Wrong tap: calm re-label «Бұл — ит. Мысық қайда?»
+//  • every third round: «Алма ма, банан ба?» — a free choice, both answers are fine.
 import * as audio from "./audio.js";
-import { makePicture, preloadItem, jump, wiggle, shake, fireworks, flyStar, pulse } from "./fx.js";
+import { makePicture, preloadItem, jump, wiggle, fireworks, pulse, sparks } from "./fx.js";
+import { nameUrl } from "./parent.js";
 
 const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 function shuffle(a) {
@@ -11,8 +14,9 @@ function shuffle(a) {
   }
   return a;
 }
+const lowerFirst = (s) => s.slice(0, 1).toLowerCase() + s.slice(1);
 
-export function createQuiz({ question, options, praiseEl, canvas, starsEl, starsN, template, praises, colorFor, setBg, store }) {
+export function createQuiz({ question, options, praiseEl, canvas, phrases, colorFor, setBg }) {
   let pool = [];
   let round = null;
   let recent = [];
@@ -20,12 +24,12 @@ export function createQuiz({ question, options, praiseEl, canvas, starsEl, stars
   let timers = [];
   let active = false;
   let waiting = false;
-  let stars = parseInt(store.get("bul-kim:stars") || "0", 10) || 0;
+  let count = 0;
 
   const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
   const setWaiting = (v) => { waiting = v; options.classList.toggle("waiting", v); };
-  const qText = (it) => template.replace("{kk}", it.kk);
-  const renderStars = () => { starsN.textContent = String(stars); };
+  const P = (it) => phrases[it.id] || {};
+  const tail = (it) => (it.show ? { url: `assets/audio/s_${it.id}.mp3`, text: it.show } : it.sound ? { url: `assets/sounds/${it.id}.mp3` } : null);
 
   function newRound() {
     const set = pick(pool);
@@ -34,15 +38,27 @@ export function createQuiz({ question, options, praiseEl, canvas, starsEl, stars
     const target = pick(cands);
     recent.push(target.id);
     while (recent.length > Math.min(8, set.items.length - 3)) recent.shift();
-    const others = shuffle(set.items.filter((it) => it.id !== target.id && it.emoji !== target.emoji)).slice(0, 2);
-    return { target, opts: shuffle([target, ...others]), wrong: new Set(), solved: false };
+    const kind = count % 3 === 2 ? "choice" : "find";
+    const others = shuffle(set.items.filter((it) => it.id !== target.id && it.emoji !== target.emoji)).slice(0, kind === "choice" ? 1 : 2);
+    return { kind, target, opts: shuffle([target, ...others]), wrong: new Set(), solved: false };
+  }
+
+  function questionText(r) {
+    if (r.kind === "find") return P(r.target).q;
+    const [a, b] = r.opts;
+    return `${P(a).c.replace(/\?$/, "")}, ${lowerFirst(P(b).c)}`; // «Алма ма, банан ба?»
+  }
+  function questionClips(r) {
+    if (r.kind === "find") return [{ url: `assets/audio/q_${r.target.id}.mp3`, text: P(r.target).q }];
+    return r.opts.map((it) => ({ url: `assets/audio/c_${it.id}.mp3`, text: P(it).c }));
   }
 
   function render() {
     pics.forEach((p) => p.destroy());
     pics = [];
     options.replaceChildren();
-    question.textContent = qText(round.target);
+    options.dataset.kind = round.kind;
+    question.textContent = questionText(round);
     setBg(colorFor(Math.floor(Math.random() * 8)));
     round.opts.forEach((it, k) => {
       const b = document.createElement("button");
@@ -67,18 +83,20 @@ export function createQuiz({ question, options, praiseEl, canvas, starsEl, stars
     question.animate([{ transform: "translateY(-30px)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 400, easing: "ease-out" });
   }
 
-  async function ask(delay) {
+  async function ask(delay, pre = []) {
     setWaiting(true);
     const r = round;
-    await audio.play([{ url: `assets/audio/q_${r.target.id}.mp3`, text: qText(r.target) }], {
+    await audio.play([...pre, ...questionClips(r)], {
       delay,
-      onClip: () => pulse(question),
+      gap: r.kind === "choice" ? 0.12 : 0.45,
+      onClip: (i) => { if (i >= pre.length) pulse(question); },
     });
     if (active && round === r && !r.solved) setWaiting(false);
   }
 
   function next(delay = 0.3) {
     clearTimers();
+    count++;
     round = newRound();
     render();
     ask(delay + 0.3);
@@ -91,55 +109,55 @@ export function createQuiz({ question, options, praiseEl, canvas, starsEl, stars
     praiseEl.classList.add("show");
   }
 
+  async function finish(r, btn, it, clips, celebrate) {
+    r.solved = true;
+    setWaiting(true);
+    btn.classList.add("right");
+    [...options.children].forEach((b) => { if (b !== btn) b.classList.add("gone"); });
+    if (celebrate) {
+      audio.sfx("win");
+      fireworks(canvas, { bursts: 4, spread: 900 });
+      showPraise(P(it).f || it.kk);
+    } else {
+      const b = btn.getBoundingClientRect();
+      sparks(b.left + b.width / 2, b.top + b.height / 2, 10);
+    }
+    const ok = await audio.play(clips.filter(Boolean), {
+      delay: 0.4,
+      gap: 0.3,
+      onClip: (i) => (i === 0 ? jump(btn) : wiggle(btn)),
+    });
+    if (!active || round !== r) return;
+    if (ok) timers.push(setTimeout(() => { if (active && round === r) next(); }, 800));
+    else setWaiting(false);
+  }
+
   async function choose(btn, it) {
     if (!active || !round || round.solved) return;
-    if (waiting || round.wrong.has(it.id)) { shake(btn); return; }
+    if (waiting || round.wrong.has(it.id)) return;
     const r = round;
 
-    if (it.id === r.target.id) {
-      r.solved = true;
-      setWaiting(true);
-      btn.classList.add("right");
-      [...options.children].forEach((b) => { if (b !== btn) b.classList.add("gone"); });
-      audio.sfx("win");
-      stars++;
-      store.set("bul-kim:stars", String(stars));
-      const big = stars % 5 === 0;
-      fireworks(canvas, { bursts: big ? 12 : 7, spread: big ? 2200 : 1300, onBurst: () => audio.sfx("pop") });
-      const p = pick(praises);
-      showPraise(p.text);
-      flyStar(btn, starsEl, () => { renderStars(); pulse(starsEl); });
-      const clips = [{ url: `assets/audio/_${p.key}.mp3`, text: p.text }, { url: `assets/audio/${it.id}.mp3`, text: it.kk }];
-      if (it.sound) clips.push({ url: `assets/sounds/${it.id}.mp3` });
-      const ok = await audio.play(clips, {
-        delay: 0.5,
-        gap: 0.3,
-        onClip: (i) => { if (i === 1) jump(btn); else if (i === 2) wiggle(btn); },
-      });
-      if (!active || round !== r) return;
-      if (ok) timers.push(setTimeout(() => { if (active && round === r) next(); }, 700));
-      else setWaiting(false);
-      return;
+    if (r.kind === "choice") {
+      // any answer is right: name it with enthusiasm
+      return finish(r, btn, it, [{ url: nameUrl(it.id), text: it.kk }, tail(it)], false);
     }
-
-    // wrong: the picture says its own name, then the question repeats
+    if (it.id === r.target.id) {
+      // «Мысықты таптың!» + the cat's sound (or «Мұрныңды көрсет!»)
+      return finish(r, btn, it, [{ url: `assets/audio/f_${it.id}.mp3`, text: P(it).f }, tail(it)], true);
+    }
+    // wrong: calm re-label, then the same question again
     r.wrong.add(it.id);
-    setWaiting(true);
     btn.classList.add("wrong");
-    shake(btn);
-    audio.sfx("no");
-    const ok = await audio.play([{ url: `assets/audio/${it.id}.mp3`, text: it.kk }], { delay: 0.3 });
-    if (!active || round !== r || r.solved) return;
-    if (ok) ask(0.4); else setWaiting(false);
+    ask(0.25, [{ url: `assets/audio/b_${it.id}.mp3`, text: P(it).b }]);
   }
 
   return {
     open(sets) {
       this.close();
-      pool = sets.filter((s) => s.items.length >= 3);
+      pool = sets.filter((s) => s.quiz !== false && s.items.length >= 3);
       active = true;
       recent = [];
-      renderStars();
+      count = 0;
       next(0.2);
     },
     close() {

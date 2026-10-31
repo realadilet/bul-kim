@@ -17,10 +17,32 @@ export function prefetch(url) {
   return raw.get(url);
 }
 
+export const context = () => ctx;
+
+// Parent recordings start/end with silence and breathing: cut it so the word starts right away.
+function trimSilence(buf) {
+  const d = buf.getChannelData(0);
+  let peak = 0;
+  for (let i = 0; i < d.length; i++) peak = Math.max(peak, Math.abs(d[i]));
+  const thr = Math.max(0.02, peak * 0.08);
+  let a = 0, b = d.length - 1;
+  while (a < b && Math.abs(d[a]) < thr) a++;
+  while (b > a && Math.abs(d[b]) < thr) b--;
+  const pad = Math.floor(buf.sampleRate * 0.06);
+  a = Math.max(0, a - pad);
+  b = Math.min(d.length - 1, b + pad * 2);
+  if (b - a < buf.sampleRate * 0.15) return buf;
+  const out = ctx.createBuffer(buf.numberOfChannels, b - a, buf.sampleRate);
+  for (let c = 0; c < buf.numberOfChannels; c++) out.copyToChannel(buf.getChannelData(c).subarray(a, b), c);
+  return out;
+}
+
 function decode(url) {
   if (!ctx) return Promise.reject(new Error("audio locked"));
   if (!decoded.has(url)) {
-    const p = prefetch(url).then((b) => new Promise((res, rej) => ctx.decodeAudioData(b.slice(0), res, rej)));
+    const p = prefetch(url)
+      .then((b) => new Promise((res, rej) => ctx.decodeAudioData(b.slice(0), res, rej)))
+      .then((buf) => (url.startsWith("blob:") ? trimSilence(buf) : buf));
     p.catch(() => decoded.delete(url));
     decoded.set(url, p);
   }

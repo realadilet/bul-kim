@@ -1,6 +1,6 @@
 // Offline cache: code is network-first (updates arrive after deploy),
 // pictures/animations/audio are cache-first and all prefetched on install.
-const CACHE = "bul-kim-v2";
+const CACHE = "bul-kim-v3";
 const CORE = [
   "./",
   "index.html",
@@ -10,6 +10,11 @@ const CORE = [
   "js/fx.js",
   "js/viewer.js",
   "js/quiz.js",
+  "js/parent.js",
+  "js/mic.js",
+  "assets/phrases.json",
+  "assets/img/_bye.svg",
+  "assets/anim/_bye.json",
   "vendor/lottie_light.min.js",
   "content.json",
   "manifest.webmanifest",
@@ -26,15 +31,21 @@ self.addEventListener("install", (e) => {
     const c = await caches.open(CACHE);
     await c.addAll(CORE);
     const cfg = await (await fetch("content.json")).json();
+    const phrases = await (await fetch("assets/phrases.json")).json();
     const urls = Object.keys(cfg.phrases || {}).map((k) => `assets/audio/_${k}.mp3`);
+    for (const [id, kinds] of Object.entries(phrases)) {
+      for (const kind of Object.keys(kinds)) urls.push(`assets/audio/${kind}_${id}.mp3`);
+    }
     for (const s of cfg.sets) {
       for (const it of s.items) {
-        urls.push(`assets/img/${it.id}.svg`, `assets/audio/${it.id}.mp3`, `assets/audio/q_${it.id}.mp3`);
+        urls.push(`assets/img/${it.id}.svg`, `assets/audio/${it.id}.mp3`);
         if (it.anim) urls.push(`assets/anim/${it.id}.json`);
         if (it.sound) urls.push(`assets/sounds/${it.id}.mp3`);
       }
     }
-    await Promise.allSettled(urls.map((u) => c.add(u)));
+    for (let i = 0; i < urls.length; i += 24) {
+      await Promise.allSettled(urls.slice(i, i + 24).map((u) => c.add(u)));
+    }
     self.skipWaiting();
   })());
 });

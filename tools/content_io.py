@@ -4,7 +4,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PATH = ROOT / "content.json"
-ITEM_KEYS = ["id", "kk", "ru", "emoji", "anim", "sound"]
+ITEM_KEYS = ["id", "kk", "ru", "emoji", "anim", "sound"]  # остальные поля (show, acc, custom) — в конце строки
 
 
 def load():

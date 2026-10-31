@@ -11,28 +11,64 @@
     assets/img/<id>.svg       картинка
     assets/anim/<id>.json     анимация (если "anim": true)
     assets/audio/<id>.mp3     «Маймыл»
-    assets/audio/q_<id>.mp3   «Маймыл қайда?» (для игры)
+    assets/audio/q_<id>.mp3   «Маймыл қайда?»       (игра)
+    assets/audio/f_<id>.mp3   «Маймылды таптың!»    (игра, правильно)
+    assets/audio/b_<id>.mp3   «Бұл — маймыл.»       (игра, неправильно)
+    assets/audio/c_<id>.mp3   «Маймыл ма?»          (игра «выбери»)
+    assets/audio/h_<id>.mp3   «Үйден допты тап!»    (наборы с "home": true)
+    assets/audio/s_<id>.mp3   «Мұрныңды көрсет!»    (поле "show")
+Тексты этих фраз пишутся в assets/phrases.json — их показывает страница.
 """
+
+
+def phrases_for(it, s, tpl):
+    """Generated sentences for one word (see kazakh.py for the grammar)."""
+    kk = it["kk"]
+    a = it.get("acc") or acc(kk)
+    low = lambda t: t[:1].lower() + t[1:]
+    out = {}
+    if s.get("quiz", True):
+        out["q"] = tpl["question"].format(kk=kk)
+        out["f"] = tpl["found"].format(acc=a)
+        out["b"] = tpl["this"].format(low=low(kk))
+        out["c"] = tpl["choice"].format(kk=kk, q=it.get("q") or q(kk))
+    if s.get("home"):
+        out["h"] = tpl["home"].format(acc_low=low(a))
+    if it.get("show"):
+        out["s"] = it["show"]
+    return out
 import argparse
 import asyncio
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from content_io import ROOT, load  # noqa: E402
+from kazakh import acc, q  # noqa: E402
+import json  # noqa: E402
 
 NOTO = "https://fonts.gstatic.com/s/e/notoemoji/latest/{code}/{file}"
 GAME_EMOJI = "1f389"  # 🎉 картинка для кнопки «Ойын»
+BYE_EMOJI = "1f971"   # 🥱 «Сау бол!» в конце сессии
 
 
-def download(url: str, dest: Path) -> None:
+def download(url: str, dest: Path, tries: int = 4) -> None:
     req = urllib.request.Request(url, headers={"User-Agent": "bul-kim-builder"})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        data = r.read()
+    for n in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                data = r.read()
+            break
+        except (TimeoutError, OSError) as e:
+            if n == tries - 1:
+                raise
+            print(f"  … повтор {dest.name}: {e}")
+            time.sleep(2 * (n + 1))
     dest.write_bytes(data)
     print(f"  ↓ {dest.relative_to(ROOT)} ({len(data) // 1024} KB)")
 
@@ -71,9 +107,12 @@ async def main() -> None:
 
     downloads = []   # (url, dest)
     speech = []      # (text, dest)
+    texts = {}       # id -> {kind: text} for the page
     for s in cfg["sets"]:
         for it in s["items"]:
             key = it["id"]
+            ph = phrases_for(it, s, cfg["templates"])
+            texts[key] = ph
             if args.only and key != args.only:
                 continue
             if not it.get("custom"):  # "custom": true — свой рисунок в assets/img, не скачиваем
@@ -81,11 +120,15 @@ async def main() -> None:
             if it.get("anim"):
                 downloads.append((NOTO.format(code=it["emoji"], file="lottie.json"), anim / f"{key}.json"))
             speech.append((it["kk"], audio / f"{key}.mp3"))
-            speech.append((cfg["question"].format(kk=it["kk"]), audio / f"q_{key}.mp3"))
+            for kind, text in ph.items():
+                speech.append((text, audio / f"{kind}_{key}.mp3"))
     if not args.only:
         downloads.append((NOTO.format(code=GAME_EMOJI, file="emoji.svg"), img / "_game.svg"))
+        downloads.append((NOTO.format(code=BYE_EMOJI, file="emoji.svg"), img / "_bye.svg"))
+        downloads.append((NOTO.format(code=BYE_EMOJI, file="lottie.json"), anim / "_bye.json"))
         for k, text in cfg.get("phrases", {}).items():
             speech.append((text, audio / f"_{k}.mp3"))
+    (ROOT / "assets" / "phrases.json").write_text(json.dumps(texts, ensure_ascii=False, indent=0), "utf-8")
 
     for url, dest in downloads:
         if not dest.exists():
@@ -95,7 +138,14 @@ async def main() -> None:
 
     async def one(text, dest):
         async with sem:
-            await tts(text, dest, voice, rate)
+            for n in range(4):
+                try:
+                    return await tts(text, dest, voice, rate)
+                except Exception as e:  # сеть или сервис TTS — пробуем ещё
+                    if n == 3:
+                        raise
+                    print(f"  … повтор «{text}»: {e}")
+                    await asyncio.sleep(2 * (n + 1))
 
     todo = [(t, d) for t, d in speech if args.force or not d.exists()]
     await asyncio.gather(*(one(t, d) for t, d in todo))

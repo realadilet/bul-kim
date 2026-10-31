@@ -1,8 +1,8 @@
 {
   "voice": "kk-KZ-AigulNeural",
   "rate": "-15%",
-  "question": "{kk} қайда?",
-  "phrases": {"praise1": "Жарайсың!", "praise2": "Керемет!", "praise3": "Бәрекелді!", "praise4": "Тамаша!", "praise5": "Дұрыс!"},
+  "templates": {"question": "{kk} қайда?", "found": "{acc} таптың!", "this": "Бұл — {low}.", "choice": "{kk} {q}?", "home": "Үйден {acc_low} тап!"},
+  "phrases": {"praise1": "Жарайсың!", "praise2": "Керемет!", "praise3": "Бәрекелді!", "praise4": "Тамаша!", "praise5": "Дұрыс!", "bye": "Жарайсың! Бүгінге жетеді. Сау бол!"},
   "sets": [
     { "id": "animals", "kk": "Жануарлар", "ru": "Животные", "cover": "maimyl", "items": [
       { "id": "mysyq",      "kk": "Мысық",      "ru": "кошка",    "emoji": "1f63a",      "anim": true,  "sound": true },
@@ -64,7 +64,7 @@
       { "id": "apke", "kk": "Әпке", "ru": "старшая сестра", "emoji": "1f467", "anim": false, "sound": false },
       { "id": "bope", "kk": "Бөпе", "ru": "малыш",          "emoji": "1f476", "anim": false, "sound": true }
     ] },
-    { "id": "food", "kk": "Тағам", "ru": "Еда", "cover": "alma", "items": [
+    { "id": "food", "kk": "Тағам", "ru": "Еда", "cover": "alma", "home": true, "items": [
       { "id": "alma",      "kk": "Алма",      "ru": "яблоко",    "emoji": "1f34e", "anim": true,  "sound": false },
       { "id": "banan",     "kk": "Банан",     "ru": "банан",     "emoji": "1f34c", "anim": false, "sound": false },
       { "id": "almurt",    "kk": "Алмұрт",    "ru": "груша",     "emoji": "1f350", "anim": true,  "sound": false },
@@ -89,7 +89,7 @@
       { "id": "balmuzdaq", "kk": "Балмұздақ", "ru": "мороженое", "emoji": "1f366", "anim": true,  "sound": false },
       { "id": "kampit",    "kk": "Кәмпит",    "ru": "конфета",   "emoji": "1f36c", "anim": false, "sound": false }
     ] },
-    { "id": "things", "kk": "Заттар", "ru": "Вещи", "cover": "dop", "items": [
+    { "id": "things", "kk": "Заттар", "ru": "Вещи", "cover": "dop", "home": true, "items": [
       { "id": "qasyq",     "kk": "Қасық",       "ru": "ложка",        "emoji": "1f944",      "anim": false, "sound": false },
       { "id": "tarelke",   "kk": "Тәрелке",     "ru": "тарелка",      "emoji": "1f37d_fe0f", "anim": true,  "sound": false },
       { "id": "dop",       "kk": "Доп",         "ru": "мяч",          "emoji": "26bd",       "anim": true,  "sound": false },
@@ -113,9 +113,38 @@
       { "id": "sham",      "kk": "Шам",         "ru": "лампа",        "emoji": "1f4a1",      "anim": true,  "sound": false },
       { "id": "qolshatyr", "kk": "Қолшатыр",    "ru": "зонт",         "emoji": "2602_fe0f",  "anim": true,  "sound": false },
       { "id": "sabyn",     "kk": "Сабын",       "ru": "мыло",         "emoji": "1f9fc",      "anim": false, "sound": false },
-      { "id": "tisshetka", "kk": "Тіс щеткасы", "ru": "зубная щётка", "emoji": "1faa5",      "anim": false, "sound": false },
+      { "id": "tisshetka", "kk": "Тіс щеткасы", "ru": "зубная щётка", "emoji": "1faa5",      "anim": false, "sound": false, "acc": "Тіс щеткасын" },
       { "id": "shar",      "kk": "Шар",         "ru": "шарик",        "emoji": "1f388",      "anim": true,  "sound": false },
       { "id": "oiynshyq",  "kk": "Ойыншық",     "ru": "игрушка",      "emoji": "1f9f8",      "anim": false, "sound": false }
+    ] },
+    { "id": "body", "kk": "Дене", "ru": "Тело", "cover": "muryn", "items": [
+      { "id": "koz",    "kk": "Көз",    "ru": "глаза", "emoji": "1f440",     "anim": true,  "sound": false, "show": "Көзіңді көрсет!" },
+      { "id": "qulaq",  "kk": "Құлақ",  "ru": "ухо",   "emoji": "1f442",     "anim": true,  "sound": false, "show": "Құлағыңды көрсет!" },
+      { "id": "muryn",  "kk": "Мұрын",  "ru": "нос",   "emoji": "1f443",     "anim": true,  "sound": false, "show": "Мұрныңды көрсет!" },
+      { "id": "auyz",   "kk": "Ауыз",   "ru": "рот",   "emoji": "1f444",     "anim": false, "sound": false, "show": "Аузыңды көрсет!" },
+      { "id": "til",    "kk": "Тіл",    "ru": "язык",  "emoji": "1f445",     "anim": false, "sound": false, "show": "Тіліңді көрсет!" },
+      { "id": "tis",    "kk": "Тіс",    "ru": "зуб",   "emoji": "1f9b7",     "anim": false, "sound": false, "show": "Тісіңді көрсет!" },
+      { "id": "qol",    "kk": "Қол",    "ru": "рука",  "emoji": "270b",      "anim": true,  "sound": false, "show": "Қолыңды көрсет!" },
+      { "id": "sausaq", "kk": "Саусақ", "ru": "палец", "emoji": "261d_fe0f", "anim": true,  "sound": false, "show": "Саусағыңды көрсет!" },
+      { "id": "aiaq",   "kk": "Аяқ",    "ru": "нога",  "emoji": "1f9b6",     "anim": true,  "sound": false, "show": "Аяғыңды көрсет!" }
+    ] },
+    { "id": "actions", "kk": "Әрекет", "ru": "Действия", "cover": "bile", "quiz": false, "items": [
+      { "id": "zhugir",     "kk": "Жүгір!",     "ru": "беги",           "emoji": "1f3c3", "anim": false, "sound": false },
+      { "id": "bile",       "kk": "Биле!",      "ru": "танцуй",         "emoji": "1f483", "anim": true,  "sound": false },
+      { "id": "uiyqta",     "kk": "Ұйықта!",    "ru": "спи",            "emoji": "1f634", "anim": true,  "sound": false },
+      { "id": "zhe",        "kk": "Же!",        "ru": "ешь",            "emoji": "1f60b", "anim": true,  "sound": false },
+      { "id": "ish",        "kk": "Іш!",        "ru": "пей",            "emoji": "1f964", "anim": false, "sound": false },
+      { "id": "shapalaqta", "kk": "Шапалақта!", "ru": "хлопай",         "emoji": "1f44f", "anim": true,  "sound": false },
+      { "id": "bulga",      "kk": "Қол бұлға!", "ru": "помаши",         "emoji": "1f44b", "anim": true,  "sound": false },
+      { "id": "qushaqta",   "kk": "Құшақта!",   "ru": "обними",         "emoji": "1fac2", "anim": true,  "sound": false },
+      { "id": "kul",        "kk": "Күл!",       "ru": "смейся",         "emoji": "1f604", "anim": true,  "sound": false },
+      { "id": "zhuz",       "kk": "Жүз!",       "ru": "плыви",          "emoji": "1f3ca", "anim": false, "sound": false },
+      { "id": "shomyl",     "kk": "Шомыл!",     "ru": "купайся",        "emoji": "1f6c1", "anim": false, "sound": false },
+      { "id": "salem",      "kk": "Сәлем!",     "ru": "привет",         "emoji": "1f64b", "anim": false, "sound": false },
+      { "id": "raqmet",     "kk": "Рақмет!",    "ru": "спасибо",        "emoji": "1f64f", "anim": true,  "sound": false },
+      { "id": "iia",        "kk": "Иә!",        "ru": "да",             "emoji": "1f44d", "anim": true,  "sound": false },
+      { "id": "zhoq",       "kk": "Жоқ!",       "ru": "нет",            "emoji": "1f645", "anim": false, "sound": false },
+      { "id": "bitti",      "kk": "Бітті!",     "ru": "всё, закончили", "emoji": "1f64c", "anim": true,  "sound": false }
     ] }
   ]
 }
