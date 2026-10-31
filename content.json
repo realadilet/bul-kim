@@ -118,12 +118,12 @@
       { "id": "oiynshyq",  "kk": "Ойыншық",     "ru": "игрушка",      "emoji": "1f9f8",      "anim": false, "sound": false }
     ] },
     { "id": "body", "kk": "Дене", "ru": "Тело", "cover": "muryn", "items": [
-      { "id": "koz",    "kk": "Көз",    "ru": "глаза", "emoji": "1f440",     "anim": true,  "sound": false, "show": "Көзіңді көрсет!" },
-      { "id": "qulaq",  "kk": "Құлақ",  "ru": "ухо",   "emoji": "1f442",     "anim": true,  "sound": false, "show": "Құлағыңды көрсет!" },
-      { "id": "muryn",  "kk": "Мұрын",  "ru": "нос",   "emoji": "1f443",     "anim": true,  "sound": false, "show": "Мұрныңды көрсет!" },
-      { "id": "auyz",   "kk": "Ауыз",   "ru": "рот",   "emoji": "1f444",     "anim": false, "sound": false, "show": "Аузыңды көрсет!" },
-      { "id": "til",    "kk": "Тіл",    "ru": "язык",  "emoji": "1f445",     "anim": false, "sound": false, "show": "Тіліңді көрсет!" },
-      { "id": "tis",    "kk": "Тіс",    "ru": "зуб",   "emoji": "1f9b7",     "anim": false, "sound": false, "show": "Тісіңді көрсет!" },
+      { "id": "koz",    "kk": "Көз",    "ru": "глаза", "emoji": "1f440",     "anim": false, "sound": false, "show": "Көзіңді көрсет!", "custom": true },
+      { "id": "qulaq",  "kk": "Құлақ",  "ru": "ухо",   "emoji": "1f442",     "anim": false, "sound": false, "show": "Құлағыңды көрсет!", "custom": true },
+      { "id": "muryn",  "kk": "Мұрын",  "ru": "нос",   "emoji": "1f443",     "anim": false, "sound": false, "show": "Мұрныңды көрсет!", "custom": true },
+      { "id": "auyz",   "kk": "Ауыз",   "ru": "рот",   "emoji": "1f444",     "anim": false, "sound": false, "show": "Аузыңды көрсет!", "custom": true },
+      { "id": "til",    "kk": "Тіл",    "ru": "язык",  "emoji": "1f445",     "anim": false, "sound": false, "show": "Тіліңді көрсет!", "custom": true },
+      { "id": "tis",    "kk": "Тіс",    "ru": "зуб",   "emoji": "1f9b7",     "anim": false, "sound": false, "show": "Тісіңді көрсет!", "custom": true },
       { "id": "qol",    "kk": "Қол",    "ru": "рука",  "emoji": "270b",      "anim": true,  "sound": false, "show": "Қолыңды көрсет!" },
       { "id": "sausaq", "kk": "Саусақ", "ru": "палец", "emoji": "261d_fe0f", "anim": true,  "sound": false, "show": "Саусағыңды көрсет!" },
       { "id": "aiaq",   "kk": "Аяқ",    "ru": "нога",  "emoji": "1f9b6",     "anim": true,  "sound": false, "show": "Аяғыңды көрсет!" }
