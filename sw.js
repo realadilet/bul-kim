@@ -67,26 +67,57 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("message", (e) => { if (e.data === "warm") e.waitUntil(warmUp().catch(() => {})); });
 
+// Weak Wi-Fi: if the page itself doesn't arrive in 3 s, open the cached version. Every other code file of
+// that page then also comes from the cache, so old and new files never mix. The fresh copies still download
+// in the background and are used on the next open.
+const NAV_TIMEOUT = 3000;
+const fromCache = new Set(); // ids of pages that were opened from the cache
+
 self.addEventListener("fetch", (e) => {
   const req = e.request;
   const url = new URL(req.url);
   if (req.method !== "GET" || url.origin !== location.origin) return;
   const isCode = CODE.test(url.pathname) && !url.pathname.includes("/assets/anim/");
-  e.respondWith((async () => {
-    const c = await caches.open(CACHE);
-    if (isCode) {
-      try {
-        const res = await fetch(req, { cache: "no-cache" }); // revalidate (ETag), never a stale copy
-        if (res.ok) c.put(req, res.clone());
-        return res;
-      } catch {
-        return (await c.match(req, { ignoreSearch: true })) || Response.error();
-      }
-    }
-    const hit = await c.match(req, { ignoreSearch: true });
-    if (hit) return hit;
-    const res = await fetch(req);
-    if (res.ok) c.put(req, res.clone());
+
+  if (!isCode) {
+    e.respondWith((async () => {
+      const hit = await caches.match(req, { ignoreSearch: true });
+      if (hit) return hit;
+      const res = await fetch(req);
+      if (res.ok) (await caches.open(CACHE)).put(req, res.clone());
+      return res;
+    })());
+    return;
+  }
+
+  // revalidate with the server (ETag → tiny 304), never a stale HTTP-cache copy
+  let saved = null;
+  const fresh = fetch(req, { cache: "no-cache" }).then((res) => {
+    if (res.ok) { const copy = res.clone(); saved = caches.open(CACHE).then((c) => c.put(req, copy)); }
     return res;
+  });
+  e.waitUntil(fresh.then(() => saved, () => {}).catch(() => {}));
+
+  if (req.mode === "navigate") {
+    e.respondWith((async () => {
+      const cached = (await caches.match(req, { ignoreSearch: true })) || (await caches.match("./"));
+      if (!cached) return fresh.catch(() => Response.error());
+      const res = await Promise.race([fresh.catch(() => null), new Promise((r) => setTimeout(() => r(null), NAV_TIMEOUT))]);
+      if (res && res.ok) return res;
+      if (e.resultingClientId) fromCache.add(e.resultingClientId);
+      return cached;
+    })());
+    return;
+  }
+
+  e.respondWith((async () => {
+    const cached = await caches.match(req, { ignoreSearch: true });
+    if (cached && fromCache.has(e.clientId)) return cached;
+    try {
+      const res = await fresh;
+      return res.ok || !cached ? res : cached;
+    } catch {
+      return cached || Response.error();
+    }
   })());
 });

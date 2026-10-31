@@ -13,7 +13,7 @@ import {
 const LIGHT = ["#FFD6A5", "#CAFFBF", "#9BF6FF", "#BDB2FF", "#FFC6FF", "#FDFFB6", "#A0C4FF", "#FFADAD"];
 const DARK  = ["#3D2C5E", "#1F4A4F", "#24445E", "#4A2E5C", "#5A2E48", "#4A3D22", "#2A3B6B", "#5A2E2E"];
 const GUIDE_URL = "https://github.com/realadilet/bul-kim/blob/main/PARENTS.md";
-const VERSION = "2026-10-31.4"; // shown in the parent zone; bump on each deploy
+const VERSION = "2026-10-31.5"; // shown in the parent zone; bump on each deploy
 
 const $ = (id) => document.getElementById(id);
 const darkMq = matchMedia("(prefers-color-scheme: dark)");
