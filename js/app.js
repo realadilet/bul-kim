@@ -13,7 +13,6 @@ import {
 const LIGHT = ["#FFD6A5", "#CAFFBF", "#9BF6FF", "#BDB2FF", "#FFC6FF", "#FDFFB6", "#A0C4FF", "#FFADAD"];
 const DARK  = ["#3D2C5E", "#1F4A4F", "#24445E", "#4A2E5C", "#5A2E48", "#4A3D22", "#2A3B6B", "#5A2E2E"];
 const GUIDE_URL = "https://github.com/realadilet/bul-kim/blob/main/PARENTS.md";
-const VERSION = "2026-10-31.5"; // shown in the parent zone; bump on each deploy
 
 const $ = (id) => document.getElementById(id);
 const darkMq = matchMedia("(prefers-color-scheme: dark)");
@@ -260,7 +259,21 @@ function renderParent(body) {
   guide.rel = "noopener";
   links.append(rec, log, guide);
   body.appendChild(links);
-  body.appendChild(el("p", "phelp version", `v ${VERSION}`));
+  const ver = el("p", "phelp version", "v …");
+  body.appendChild(ver);
+  swVersion().then((v) => { ver.textContent = `v ${v}`; });
+}
+
+// the version lives in sw.js (one place to bump on release)
+function swVersion() {
+  const c = navigator.serviceWorker?.controller;
+  if (!c) return Promise.resolve("—");
+  return new Promise((res) => {
+    const ch = new MessageChannel();
+    ch.port1.onmessage = (e) => res(e.data);
+    c.postMessage("version", [ch.port2]);
+    setTimeout(() => res("—"), 800);
+  });
 }
 
 let listSet = null;
@@ -471,7 +484,7 @@ async function init() {
 init();
 
 // ---------------------------------------------------------------- updates
-// A new deploy activates its service worker right away; reload when the child is on the menu, not mid-game.
+// The browser checks sw.js in the background; a new VERSION installs and the page reloads on the menu.
 let updateReady = false;
 function reloadIfIdle() { if (updateReady && screen === "menu" && $("panel").hidden && !byeOpen) location.reload(); }
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {

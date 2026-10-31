@@ -61,7 +61,7 @@
 4. Звук животного: положите `assets/sounds/<id>.mp3` и запустите `python3 tools/build_sounds.py` —
    он сам поставит `"sound": true`. Источники звуков с Wikimedia Commons записаны в `tools/sounds.json`.
 5. Свой голос: ⚙ → «Записать свой голос» (хранится только на устройстве) или замените `assets/audio/<id>.mp3`.
-6. Commit + push — GitHub Pages обновится сам.
+6. Поменяйте `VERSION` в `sw.js`, затем commit + push. GitHub Pages обновится, а приложение на устройстве подтянет новую версию при следующем открытии.
 
 Локально: `python3 -m http.server 8000` → <http://localhost:8000>
 
