@@ -136,7 +136,7 @@
       { "id": "ish",        "kk": "Іш!",        "ru": "пей",            "emoji": "1f9d2", "anim": false, "sound": false, "custom": true, "selfanim": true },
       { "id": "shapalaqta", "kk": "Шапалақта!", "ru": "хлопай",         "emoji": "1f44f", "anim": true,  "sound": false },
       { "id": "bulga",      "kk": "Қол бұлға!", "ru": "помаши",         "emoji": "1f44b", "anim": true,  "sound": false },
-      { "id": "qushaqta",   "kk": "Құшақта!",   "ru": "обними",         "emoji": "1fac2", "anim": true,  "sound": false },
+      { "id": "qushaqta",   "kk": "Құшақта!",   "ru": "обними",         "emoji": "1f469", "anim": false, "sound": false, "custom": true, "selfanim": true },
       { "id": "kul",        "kk": "Күл!",       "ru": "смейся",         "emoji": "1f606", "anim": true,  "sound": false },
       { "id": "zhuz",       "kk": "Жүз!",       "ru": "плыви",          "emoji": "1f3ca", "anim": false, "sound": false },
       { "id": "shomyl",     "kk": "Шомыл!",     "ru": "купайся",        "emoji": "1f6c0", "anim": false, "sound": false, "custom": true, "selfanim": true },

@@ -59,7 +59,29 @@ PICTURES = {
                        '<rect x="34" y="49.5" width="13" height="7" rx="2" fill="#FFE066" stroke="#F4C430" stroke-width="1"/>'},
     "shai": {"base": "1f375", "marks": [], "point": None, "recolor": {"#7DB240": "#B9875A", "#AAD876": "#D9B08A"}},
 }
-SELF_ANIMATED = {"koz", "qulaq", "muryn", "auyz", "til", "tis", "zhe", "ish", "bitti", "salem", "raqmet", "iia", "zhoq", "shomyl"}
+# Құшақта: the child hugs mum — two faces cheek to cheek, simple bodies and arms drawn around them
+SKIN, SKIN_EDGE = "#FFCA28", "#E59600"
+PICTURES["qushaqta"] = {
+    "base": "1f469", "marks": [], "point": None, "bounds": (-6, -14, 196, 196),
+    "under": (  # bodies: mum (pink top) and the child (blue top)
+        '<path d="M8 196c0-40 20-62 56-62s56 22 56 62z" fill="#F48FB1"/>'
+        '<path d="M92 196c0-34 16-52 46-52s46 18 46 52z" fill="#64B5F6"/>'
+    ),
+    "layers": [
+        ("1f9d2", (0, 0, 128, 128), (64, 64), (134, 92), -12, 0.78, False, "squeeze", None),
+        ("2764_fe0f", (4, 8, 124, 120), (64, 64), (100, -2), 0, 0.26, False, "beat", None),
+    ],
+    "over": (  # the child's arm around mum's neck, mum's arm around the child
+        f'<path d="M112 160C100 138 82 132 60 140" fill="none" stroke="{SKIN_EDGE}" stroke-width="17" stroke-linecap="round"/>'
+        f'<path d="M112 160C100 138 82 132 60 140" fill="none" stroke="{SKIN}" stroke-width="13" stroke-linecap="round"/>'
+        f'<ellipse cx="58" cy="140" rx="10" ry="9" fill="{SKIN}" stroke="{SKIN_EDGE}" stroke-width="2"/>'
+        f'<path d="M70 178C100 186 140 182 168 162" fill="none" stroke="{SKIN_EDGE}" stroke-width="18" stroke-linecap="round"/>'
+        f'<path d="M70 178C100 186 140 182 168 162" fill="none" stroke="{SKIN}" stroke-width="14" stroke-linecap="round"/>'
+        f'<ellipse cx="170" cy="160" rx="11" ry="10" fill="{SKIN}" stroke="{SKIN_EDGE}" stroke-width="2"/>'
+    ),
+}
+
+SELF_ANIMATED = {"qushaqta", "koz", "qulaq", "muryn", "auyz", "til", "tis", "zhe", "ish", "bitti", "salem", "raqmet", "iia", "zhoq", "shomyl"}
 
 MOUTHS = {  # replaces the smile of 🧒
     "flat": '<path d="M55 102h18" stroke="#795548" stroke-width="4.5" stroke-linecap="round"/>',
@@ -103,6 +125,8 @@ def compose(spec):
         face = face.replace(a, b)
     if spec.get("mouth"):
         face = re.sub(r'<path id="f_mouth"[^>]*/>', "", face, flags=re.S)
+    if spec.get("under"):
+        parts.append(spec["under"])
     parts.append(f"<g>{face}</g>")
     if spec.get("mouth"):
         parts.append(MOUTHS[spec["mouth"]])
@@ -140,6 +164,10 @@ def compose(spec):
         for corner in [(box[0], box[1]), (box[2], box[1]), (box[0], box[3]), (box[2], box[3])]:
             cx, cy = place(corner, anchor, at, angle, scale, mirror)
             x0, y0, x1, y1 = min(x0, cx), min(y0, cy), max(x1, cx), max(y1, cy)
+    if spec.get("over"):
+        parts.append(spec["over"])
+    if spec.get("bounds"):
+        x0, y0, x1, y1 = spec["bounds"]
     if spec.get("head"):  # the face (and what moves with it) nods / shakes / bows around the neck
         parts[0] = f'<g class="{spec["head"]}" style="transform-origin:64px 126px">{parts[0]}{"".join(head_extra)}</g>'
     else:
@@ -175,7 +203,12 @@ def compose(spec):
         "@keyframes bow{0%,60%,100%{transform:rotate(0) translateY(0)}30%{transform:translateY(5px) rotate(0)}}"
         ".bubble{transform-box:fill-box;transform-origin:center;animation:bubble 2.4s ease-in infinite;opacity:0}"
         "@keyframes bubble{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(4px,-46px) scale(1.2)}}"
-        "@media (prefers-reduced-motion:reduce){.mark,.hand,.spoon,.sip,.palm,.wave,.wag,.nod,.shake,.bow,.bubble{animation:none}}"
+        ".squeeze,.beat{transform-box:view-box}"
+        ".squeeze{animation:squeeze 1.8s ease-in-out infinite}"
+        "@keyframes squeeze{0%,100%{transform:translate(0,0) rotate(0)}50%{transform:translate(-4px,1px) rotate(-3deg)}}"
+        ".beat{animation:beat 1.8s ease-in-out infinite}"
+        "@keyframes beat{0%,100%{transform:scale(1)}15%{transform:scale(1.25)}30%{transform:scale(1)}45%{transform:scale(1.18)}}"
+        "@media (prefers-reduced-motion:reduce){.mark,.hand,.spoon,.sip,.palm,.wave,.wag,.nod,.shake,.bow,.bubble,.squeeze,.beat{animation:none}}"
         "</style>"
     )
     return (f'<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
