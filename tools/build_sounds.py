@@ -129,6 +129,7 @@ def credits(sources, cfg):
         "",
         "Суреттер / Картинки: [Noto Emoji](https://github.com/googlefonts/noto-emoji) (Apache 2.0),",
         "[Noto Animated Emoji](https://googlefonts.github.io/noto-emoji-animation/) (CC BY 4.0), Google.",
+        "«Су» суреті — Noto 🥛 (1f95b) негізінде, түсі өзгертілген / картинка «Су» — перекрашенный Noto 🥛 (Apache 2.0).",
         "Дауыс / Голос: Microsoft Aigul (kk-KZ) через [edge-tts](https://github.com/rany2/edge-tts).",
         "Қаріп / Шрифт: Nunito (SIL OFL). Анимация ойнатқышы / Плеер: lottie-web (MIT).",
         "",

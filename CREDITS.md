@@ -47,7 +47,7 @@
 | Ара (пчела) | [Bee buzzing sound (animal noises).opus](https://commons.wikimedia.org/wiki/File:Bee_buzzing_sound_(animal_noises).opus)  | Free Sounds Library User Spanac | CC BY 3.0 |
 | Бөпе (малыш) | [Rire de bébé de 9 mois.ogg](https://commons.wikimedia.org/wiki/File:Rire_de_b%C3%A9b%C3%A9_de_9_mois.ogg)  | Litlok | CC BY-SA 4.0 |
 | Су (вода) | [Pouring water in mug in sink.ogg](https://commons.wikimedia.org/wiki/File:Pouring_water_in_mug_in_sink.ogg)  | earthcalling | Public domain |
-| Машина (машина) | [Car Horn.wav](https://commons.wikimedia.org/wiki/File:Car_Horn.wav)  | 15HPanska_Ruttner_Jan | CC0 |
+| Көлік (машина) | [Car Horn.wav](https://commons.wikimedia.org/wiki/File:Car_Horn.wav)  | 15HPanska_Ruttner_Jan | CC0 |
 | Автобус (автобус) | [WWS CityBusMANSG220horn.ogg](https://commons.wikimedia.org/wiki/File:WWS_CityBusMANSG220horn.ogg)  | Work With Sounds / Technical Museum of Slovenia | CC BY 4.0 |
 | Ұшақ (самолёт) | [2011-06-05 19-32 Berlin TXL Airplane Flyover plus Wingtip Vortex.ogg](https://commons.wikimedia.org/wiki/File:2011-06-05_19-32_Berlin_TXL_Airplane_Flyover_plus_Wingtip_Vortex.ogg)  | Fritz Schlüter | CC BY-SA 3.0 |
 | Пойыз (поезд) | [C6120.kiteki.1.ogg](https://commons.wikimedia.org/wiki/File:C6120.kiteki.1.ogg)  | SL Story's | CC BY-SA 4.0 |
@@ -59,5 +59,6 @@
 
 Суреттер / Картинки: [Noto Emoji](https://github.com/googlefonts/noto-emoji) (Apache 2.0),
 [Noto Animated Emoji](https://googlefonts.github.io/noto-emoji-animation/) (CC BY 4.0), Google.
+«Су» суреті — Noto 🥛 (1f95b) негізінде, түсі өзгертілген / картинка «Су» — перекрашенный Noto 🥛 (Apache 2.0).
 Дауыс / Голос: Microsoft Aigul (kk-KZ) через [edge-tts](https://github.com/rany2/edge-tts).
 Қаріп / Шрифт: Nunito (SIL OFL). Анимация ойнатқышы / Плеер: lottie-web (MIT).

@@ -76,7 +76,8 @@ async def main() -> None:
             key = it["id"]
             if args.only and key != args.only:
                 continue
-            downloads.append((NOTO.format(code=it["emoji"], file="emoji.svg"), img / f"{key}.svg"))
+            if not it.get("custom"):  # "custom": true — свой рисунок в assets/img, не скачиваем
+                downloads.append((NOTO.format(code=it["emoji"], file="emoji.svg"), img / f"{key}.svg"))
             if it.get("anim"):
                 downloads.append((NOTO.format(code=it["emoji"], file="lottie.json"), anim / f"{key}.json"))
             speech.append((it["kk"], audio / f"{key}.mp3"))

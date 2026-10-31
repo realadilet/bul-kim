@@ -92,9 +92,11 @@ function enter(hash) {
 }
 
 function goHome() {
-  if (fromMenu) { fromMenu = false; history.back(); return; }
-  history.replaceState(null, "", location.pathname + location.search);
-  route();
+  const toMenu = () => { history.replaceState(null, "", location.pathname + location.search); route(); };
+  if (!fromMenu) return toMenu();
+  fromMenu = false;
+  history.back(); // keeps the browser's Back button consistent
+  setTimeout(() => { if (location.hash) toMenu(); }, 350); // the entry behind us wasn't the menu
 }
 
 // ---------------------------------------------------------------- menu
