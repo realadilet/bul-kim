@@ -281,7 +281,9 @@ button > svg path, button > svg rect, .stars > svg path {
   gap: 10px;
   align-items: center;
 }
-.toolbar-left { left: calc(var(--safe-l) + 14px); }
+.toolbar-left { left: calc(var(--safe-l) + 14px); transition: top .25s ease; }
+body.fs-ipad .toolbar-left { top: calc(var(--safe-t) + 84px); }
+body.fs-ipad .quiz { padding-top: calc(var(--safe-t) + 156px); }
 .toolbar-right { right: calc(var(--safe-r) + 14px); }
 .tool {
   width: 52px;

@@ -132,6 +132,11 @@ $("btn-game").addEventListener("click", () => {
 const root = document.documentElement;
 const fsEnabled = document.fullscreenEnabled || document.webkitFullscreenEnabled;
 const isFs = () => document.fullscreenElement || document.webkitFullscreenElement;
+// iPad Safari draws its own ✕ in the top-left corner in fullscreen: body.fs-ipad moves our Home button below it
+const isIPad = /iPad/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const syncFs = () => document.body.classList.toggle("fs-ipad", isIPad && !!isFs());
+document.addEventListener("fullscreenchange", syncFs);
+document.addEventListener("webkitfullscreenchange", syncFs);
 function toggleFs() {
   try {
     const p = isFs()
