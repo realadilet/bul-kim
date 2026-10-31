@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
-"""Скачивает картинки/анимации и генерирует казахскую озвучку для animals.json.
+"""Скачивает картинки/анимации и генерирует казахскую озвучку для content.json.
 
 Нужно: python3, ffmpeg, пакет edge-tts (pip install edge-tts).
 Запуск из корня проекта:
-    python3 tools/build_assets.py            # докачать/доозвучить только новое
-    python3 tools/build_assets.py --force    # переозвучить всё заново
+    python3 tools/build_assets.py              # докачать/доозвучить только новое
+    python3 tools/build_assets.py --force      # переозвучить всё заново
     python3 tools/build_assets.py --only maimyl --force
+
+Для каждого слова получается:
+    assets/img/<id>.svg       картинка
+    assets/anim/<id>.json     анимация (если "anim": true)
+    assets/audio/<id>.mp3     «Маймыл»
+    assets/audio/q_<id>.mp3   «Маймыл қайда?» (для игры)
 """
 import argparse
 import asyncio
-import json
 import shutil
 import subprocess
 import sys
@@ -17,8 +22,11 @@ import tempfile
 import urllib.request
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from content_io import ROOT, load  # noqa: E402
+
 NOTO = "https://fonts.gstatic.com/s/e/notoemoji/latest/{code}/{file}"
+GAME_EMOJI = "1f389"  # 🎉 картинка для кнопки «Ойын»
 
 
 def download(url: str, dest: Path) -> None:
@@ -37,49 +45,61 @@ async def tts(text: str, dest: Path, voice: str, rate: str) -> None:
         await edge_tts.Communicate(text, voice, rate=rate).save(str(raw))
         # обрезаем тишину в начале и в конце, чтобы звук начинался сразу
         trim = "silenceremove=start_periods=1:start_threshold=-45dB"
-        subprocess.run(
-            ["ffmpeg", "-loglevel", "error", "-y", "-i", str(raw),
-             "-af", f"{trim},areverse,{trim},areverse,apad=pad_dur=0.08",
-             "-ac", "1", "-ar", "24000", "-b:a", "48k", str(dest)],
-            check=True, timeout=60,
-        )
+        proc = await asyncio.create_subprocess_exec(
+            "ffmpeg", "-loglevel", "error", "-y", "-i", str(raw),
+            "-af", f"{trim},areverse,{trim},areverse,apad=pad_dur=0.08",
+            "-ac", "1", "-ar", "24000", "-b:a", "48k", str(dest))
+        if await asyncio.wait_for(proc.wait(), 60) != 0:
+            raise RuntimeError(f"ffmpeg failed for {dest}")
     print(f"  ♪ {dest.relative_to(ROOT)}  «{text}»")
 
 
 async def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--force", action="store_true", help="переозвучить существующие mp3")
-    ap.add_argument("--only", help="id одного животного")
+    ap.add_argument("--only", help="id одного слова")
     args = ap.parse_args()
 
     if not shutil.which("ffmpeg"):
         sys.exit("Нужен ffmpeg (brew install ffmpeg)")
 
-    cfg = json.loads((ROOT / "animals.json").read_text("utf-8"))
+    cfg = load()
     voice, rate = cfg["voice"], cfg.get("rate", "+0%")
     img, anim, audio = (ROOT / "assets" / d for d in ("img", "anim", "audio"))
     for d in (img, anim, audio):
         d.mkdir(parents=True, exist_ok=True)
 
-    jobs = [(a["id"], a["kk"], a) for a in cfg["animals"]]
-    jobs += [(f"_{k}", v, None) for k, v in cfg.get("phrases", {}).items()]
+    downloads = []   # (url, dest)
+    speech = []      # (text, dest)
+    for s in cfg["sets"]:
+        for it in s["items"]:
+            key = it["id"]
+            if args.only and key != args.only:
+                continue
+            downloads.append((NOTO.format(code=it["emoji"], file="emoji.svg"), img / f"{key}.svg"))
+            if it.get("anim"):
+                downloads.append((NOTO.format(code=it["emoji"], file="lottie.json"), anim / f"{key}.json"))
+            speech.append((it["kk"], audio / f"{key}.mp3"))
+            speech.append((cfg["question"].format(kk=it["kk"]), audio / f"q_{key}.mp3"))
+    if not args.only:
+        downloads.append((NOTO.format(code=GAME_EMOJI, file="emoji.svg"), img / "_game.svg"))
+        for k, text in cfg.get("phrases", {}).items():
+            speech.append((text, audio / f"_{k}.mp3"))
+
+    for url, dest in downloads:
+        if not dest.exists():
+            download(url, dest)
 
     sem = asyncio.Semaphore(6)
 
-    async def build(key, text, a):
+    async def one(text, dest):
         async with sem:
-            if a:
-                svg = img / f"{key}.svg"
-                if not svg.exists():
-                    await asyncio.to_thread(download, NOTO.format(code=a["emoji"], file="emoji.svg"), svg)
-                lottie = anim / f"{key}.json"
-                if a.get("anim") and not lottie.exists():
-                    await asyncio.to_thread(download, NOTO.format(code=a["emoji"], file="lottie.json"), lottie)
-            mp3 = audio / f"{key}.mp3"
-            if args.force or not mp3.exists():
-                await tts(text, mp3, voice, rate)
+            await tts(text, dest, voice, rate)
 
-    await asyncio.gather(*(build(*j) for j in jobs if not args.only or j[0] == args.only))
+    todo = [(t, d) for t, d in speech if args.force or not d.exists()]
+    await asyncio.gather(*(one(t, d) for t, d in todo))
+    print(f"готово: {len(todo)} новых записей")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

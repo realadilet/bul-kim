@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>Бұл кім?</title>
-  <meta name="description" content="Жануарлар қазақша: суреттер мен дауыс. Животные на казахском для малышей.">
+  <meta name="description" content="Жануарлар, отбасы, тағам және заттар қазақша: суреттер, дауыс және ойын. Первые слова на казахском для малышей.">
   <meta name="theme-color" content="#FFD6A5">
   <meta name="color-scheme" content="light dark">
   <link rel="manifest" href="manifest.webmanifest">
@@ -14,67 +14,84 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Бұл кім?">
-  <meta property="og:title" content="Бұл кім? — жануарлар қазақша">
-  <meta property="og:description" content="Суретті көр, атын тыңда. Животные на казахском для малышей.">
+  <meta property="og:title" content="Бұл кім? — алғашқы сөздер қазақша">
+  <meta property="og:description" content="Суретті көр, атын тыңда, ойна. Первые слова на казахском для малышей.">
   <meta property="og:image" content="icons/og.png">
   <meta property="og:type" content="website">
   <link rel="preload" href="assets/fonts/nunito-cyrillic-ext.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="assets/fonts/nunito-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body data-screen="menu">
   <div class="bubbles" aria-hidden="true">
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
 
-  <main id="stage" class="stage" aria-live="polite"></main>
+  <!-- ===== menu ===== -->
+  <section id="menu" class="screen menu">
+    <h1 class="menu-title">Бұл кім?</h1>
+    <div id="menu-tiles" class="menu-tiles"></div>
+  </section>
 
-  <button id="prev" class="nav nav-prev" type="button" aria-label="Алдыңғы">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
-  </button>
-  <button id="next" class="nav nav-next" type="button" aria-label="Келесі">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5 16.5 12 9 19.5"/></svg>
-  </button>
+  <!-- ===== viewer: swipe through one set ===== -->
+  <section id="viewer" class="screen" hidden>
+    <main id="stage" class="stage" aria-live="polite"></main>
+    <button id="prev" class="nav nav-prev" type="button" aria-label="Алдыңғы">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4.5 7.5 12 15 19.5"/></svg>
+    </button>
+    <button id="next" class="nav nav-next" type="button" aria-label="Келесі">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5 16.5 12 9 19.5"/></svg>
+    </button>
+  </section>
 
-  <div class="toolbar">
+  <!-- ===== quiz: "Мысық қайда?" ===== -->
+  <section id="quiz" class="screen quiz" hidden>
+    <h1 id="quiz-q" class="quiz-q"></h1>
+    <div id="quiz-opts" class="quiz-opts"></div>
+    <div id="praise" class="praise" aria-live="assertive"></div>
+  </section>
+
+  <!-- ===== toolbars (shown per screen via CSS) ===== -->
+  <div class="toolbar toolbar-left">
+    <button id="btn-home" class="tool" type="button" aria-label="Басты бет">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5M6.5 10v9h11v-9"/></svg>
+    </button>
+  </div>
+  <div class="toolbar toolbar-right">
+    <button id="btn-game" class="tool" type="button" aria-label="Ойын">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.8l2.4 5 5.4.6-4 3.7 1.1 5.4L12 15.8l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6z"/></svg>
+    </button>
     <button id="btn-auto" class="tool" type="button" aria-label="Автоматты көрсету" aria-pressed="false">
       <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
       <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13M16 5.5v13"/></svg>
     </button>
-    <button id="btn-grid" class="tool" type="button" aria-label="Барлық жануарлар">
+    <button id="btn-grid" class="tool" type="button" aria-label="Барлығы">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8"/></svg>
     </button>
+    <div id="stars" class="stars" aria-label="Жұлдыздар">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.7 5.6 6.1.8-4.5 4.2 1.2 6L12 16.4l-5.5 3 1.2-6-4.5-4.2 6.1-.8z"/></svg>
+      <span id="stars-n">0</span>
+    </div>
     <button id="btn-fs" class="tool" type="button" aria-label="Толық экран" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
     </button>
   </div>
 
-  <section id="grid" class="grid" hidden aria-label="Барлық жануарлар">
+  <!-- ===== all items of a set ===== -->
+  <section id="grid" class="grid" hidden aria-label="Барлығы">
     <button id="grid-close" class="tool grid-close" type="button" aria-label="Жабу">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
     <div id="grid-list" class="grid-list"></div>
     <p class="credits">
-      Суреттер: <a href="https://googlefonts.github.io/noto-emoji-animation/" target="_blank" rel="noopener">Google Noto Emoji</a> (CC BY 4.0, Apache 2.0) ·
-      Қаріп: Nunito (OFL) · Дауыс: Microsoft Aigul, <a href="https://github.com/rany2/edge-tts" target="_blank" rel="noopener">edge-tts</a>
+      Суреттер: Google Noto Emoji · Дауыс: Microsoft Aigul (edge-tts) · Дыбыстар: Wikimedia Commons ·
+      <a href="https://github.com/realadilet/bul-kim/blob/main/CREDITS.md" target="_blank" rel="noopener">авторлар мен лицензиялар</a>
     </p>
   </section>
 
-  <div id="start" class="start">
-    <div class="start-friends" aria-hidden="true">
-      <img class="f1" src="assets/img/maimyl.svg" alt="">
-      <img class="f2" src="assets/img/arystan.svg" alt="">
-      <img class="f3" src="assets/img/mysyq.svg" alt="">
-      <img class="f4" src="assets/img/pil.svg" alt="">
-    </div>
-    <h1 class="start-title">Бұл кім?</h1>
-    <button id="start-btn" class="start-btn" type="button" aria-label="Бастау">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
-    </button>
-    <p class="start-sub">Жануарлар қазақша</p>
-  </div>
+  <canvas id="fireworks" class="fireworks" hidden aria-hidden="true"></canvas>
 
   <script src="vendor/lottie_light.min.js" defer></script>
-  <script src="js/app.js" defer></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
