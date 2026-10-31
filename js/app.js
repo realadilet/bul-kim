@@ -464,7 +464,7 @@ async function init() {
   viewer = createViewer({
     stage: $("stage"), prev: $("prev"), next: $("next"), btnGrid: $("btn-grid"),
     grid: $("grid"), gridList: $("grid-list"), gridClose: $("grid-close"), tip: $("tip"),
-    colorFor, praises,
+    colorFor, praises, phrases,
     onChange(set, i) {
       setBg(colorFor(i));
       document.body.classList.toggle("no-game", set.quiz === false);

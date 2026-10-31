@@ -4,7 +4,7 @@
 import * as audio from "./audio.js";
 import * as mic from "./mic.js";
 import { makePicture, preloadItem, jump, wiggle, pulse, shake, popLetters, sparks, reduceMotion } from "./fx.js";
-import { settings, t, nextTip, nameUrl, markSaid } from "./parent.js";
+import { settings, t, tipFor, nameUrl, markSaid } from "./parent.js";
 
 const mod = (n, m) => ((n % m) + m) % m;
 const wait = (ms, signal) => new Promise((res) => {
@@ -12,7 +12,7 @@ const wait = (ms, signal) => new Promise((res) => {
   signal?.addEventListener("abort", () => { clearTimeout(id); res("cancel"); });
 });
 
-export function createViewer({ stage, prev, next, btnGrid, grid, gridList, gridClose, tip, colorFor, onChange, praises }) {
+export function createViewer({ stage, prev, next, btnGrid, grid, gridList, gridClose, tip, colorFor, onChange, praises, phrases }) {
   let set = null;
   let index = 0;
   let card = null;
@@ -141,10 +141,10 @@ export function createViewer({ stage, prev, next, btnGrid, grid, gridList, gridC
 
   function hint(on) { next.classList.toggle("hint", on); }
 
-  function showTip() {
+  function showTip(it) {
     tip.hidden = !settings.tips;
     if (!settings.tips) return;
-    tip.textContent = nextTip();
+    tip.textContent = tipFor(set, it, phrases);
     tip.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400 });
   }
 
@@ -157,7 +157,7 @@ export function createViewer({ stage, prev, next, btnGrid, grid, gridList, gridC
     card = nc;
     stage.appendChild(nc.el);
     onChange(set, i);
-    showTip();
+    showTip(nc.item);
 
     if (old) {
       busy = true;

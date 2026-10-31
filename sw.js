@@ -1,7 +1,7 @@
 // Offline-first: everything opens from the cache, instantly, with or without Wi-Fi.
 // Updates: bump VERSION on every release. The browser notices the changed sw.js in the background,
 // installs the new version, and the page reloads itself once the child is back on the menu.
-const VERSION = "2026-10-31.6";
+const VERSION = "2026-10-31.7";
 const CACHE = `bul-kim-${VERSION}`;
 const CORE = [
   "./",
